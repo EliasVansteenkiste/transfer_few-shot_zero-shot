@@ -8,11 +8,12 @@ https://stackoverflow.com/a/44719803/2047558
 import pyvips
 import os
 from os import path as osp
+from datetime import datetime
 
-from hibashi.hibashi.utils.io import ensure_dir
+from hibashi.utils.io import ensure_dir
 
 
-def trim_borders(path_img_source: str, path_img_target: str, threshold: float = 80) -> None:
+def trim_borders(path_img_source: str, path_img_target: str, threshold: float = 30) -> None:
     """
     An equivalent of ImageMagick's -trim in libvips ... automatically remove "boring" image edges.
 
@@ -68,29 +69,38 @@ def process_images(path_source: str, path_target: str) -> None:
 
     ensure_dir(path_target)
 
+    bad_images = set(['44998.jpg'])  # empty or bad images
+
     for idx, filename in enumerate(os.listdir(path_source)):
 
-        if not idx % 1000:
-            print(f'Processed {idx} images.')
+        if filename not in bad_images:
 
-        trim_borders(osp.join(path_source, filename), osp.join(path_target, filename))
+            if not idx % 1000:
+                print(f'{datetime.now().strftime("%H:%M:%S")}: Processed {idx} images.')
+
+            if idx > 40000:
+                print(filename)
+                trim_borders(osp.join(path_source, filename), osp.join(path_target, filename))
 
 
 if __name__ == "__main__":
 
 
     """
-    After first initial tests, the trimming works well except for images with stronger background gradients.
-    Fine tune the threshold for the trimming allows us to improve the trimming on these cases, 
-    however a too high threshold cuts off too much, so there is a trade-off to be made here.
+    After first initial tests, the trimming works well except for images with stronger background gradients or 
+    images containing products that have exacltly the same color as the background.
+    
+    I fine tuned the threshold. A too high threshold cuts off too much, so there is a trade-off to be made here.
     """
     s_path = '/Users/elias/Downloads/fashion-dataset/images'
     test_path = '/Users/elias/Downloads/fashion-dataset/test_trimming'
     ensure_dir(test_path)
-    img_ids = [4983, 4969, 4668, 4953, 4941, 4940, 5257, 1637, 2507, 2510, 2511, 3183, 7124, 7737, 9126,
-               9254, 12447, 13002, 14977]
-    for img_id in img_ids:
-        trim_borders(osp.join(s_path, str(img_id)+'.jpg'), osp.join(test_path, str(img_id)+'.jpg'), threshold=80)
+    img_ids_difficult_examples = [4983, 4969, 4668, 4953, 4941, 4940, 5257, 1637, 2507, 2510, 2511, 3183, 7124, 7737,
+                                  9126, 9254, 12447, 13002, 14977, 15706, 28024, 30469, 42829, 44012, 44662, 48990,
+                                  54612, 56049, 59583, 59563, 49743, 44057, 55835]
+
+    for img_id in img_ids_difficult_examples:
+        trim_borders(osp.join(s_path, str(img_id)+'.jpg'), osp.join(test_path, str(img_id)+'.jpg'), threshold=35)
 
     process_images('/Users/elias/Downloads/fashion-dataset/images',
                    '/Users/elias/Downloads/fashion-dataset/trimmed_images')
