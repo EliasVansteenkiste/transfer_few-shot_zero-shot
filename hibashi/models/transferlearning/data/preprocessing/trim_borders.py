@@ -12,7 +12,7 @@ from os import path as osp
 from hibashi.hibashi.utils.io import ensure_dir
 
 
-def trim_borders(path_img_source: str, path_img_target: str, threshold: float = 30) -> None:
+def trim_borders(path_img_source: str, path_img_target: str, threshold: float = 80) -> None:
     """
     An equivalent of ImageMagick's -trim in libvips ... automatically remove "boring" image edges.
 
@@ -89,9 +89,8 @@ if __name__ == "__main__":
     ensure_dir(test_path)
     img_ids = [4983, 4969, 4668, 4953, 4941, 4940, 5257, 1637, 2507, 2510, 2511, 3183, 7124, 7737, 9126,
                9254, 12447, 13002, 14977]
-
     for img_id in img_ids:
-        trim_borders(osp.join(s_path, str(img_id)+'.jpg'), osp.join(test_path, str(img_id)+'.jpg'), threshold=90)
+        trim_borders(osp.join(s_path, str(img_id)+'.jpg'), osp.join(test_path, str(img_id)+'.jpg'), threshold=80)
 
     process_images('/Users/elias/Downloads/fashion-dataset/images',
                    '/Users/elias/Downloads/fashion-dataset/trimmed_images')
