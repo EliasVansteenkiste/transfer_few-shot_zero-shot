@@ -13,12 +13,8 @@ torchvision==0.4.2
 imageio==2.6.1
 tqdm==4.45.0
 torch==1.4.0
-imutils==0.5.3
-ipython==7.12.0
 Pillow==7.0.0
-rawpy==0.14.0
 scikit_learn==0.22.2.post1
 skimage==0.0
-sympy==1.5.1
 tensorboardX==2.0
 kornia==0.2.0
