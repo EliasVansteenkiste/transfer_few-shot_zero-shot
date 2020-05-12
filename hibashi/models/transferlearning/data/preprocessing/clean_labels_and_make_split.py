@@ -38,7 +38,7 @@ print("\nStep 2: Check if all files are present and remove labels without corres
 df = pd.read_csv(osp.join(base_data_path, 'styles_fixed.csv'))
 df['image'] = df.apply(lambda row: str(row['id']) + ".jpg", axis=1)
 
-print('Number of labels before filtering: ', len(df['image']))
+print('Number of labels before filtering out images without corresponding images: ', len(df['image']))
 
 row_idxs_to_remove = []
 for i, row in df.iterrows():
@@ -48,11 +48,23 @@ for i, row in df.iterrows():
 
 df.drop([df.index[idx] for idx, filename in row_idxs_to_remove], inplace=True)
 
-print('Number of labels after filtering: ', len(df['image']))
+print('Number of labels after filtering out images without corresponding images: ', len(df['image']))
+
 
 #######################################################################################################################
 
-print("\nStep 3: Split train and test according to year. Odd years -> test, even years -> train ...")
+print("\nStep 3: Remove samples with non-sensical images ...")
+
+print('Number of labels before filtering out bad images: ', len(df['image']))
+
+bad_image_idxs = [44998]
+df.drop([df.index[df['id'] == idx][0] for idx in bad_image_idxs], inplace=True)
+
+print('Number of labels after filtering out bad images: ', len(df['image']))
+
+#######################################################################################################################
+
+print("\nStep 4: Split train and test according to year. Odd years -> test, even years -> train ...")
 
 test_df = pd.concat([df.loc[df['year'] == year] for year in range(2007, 2020, 2)])
 train_df = pd.concat([df.loc[df['year'] == year] for year in range(2008, 2020, 2)])
@@ -62,7 +74,7 @@ print('Number of test samples: ', len(test_df))
 
 #######################################################################################################################
 
-print("\nStep 4: Select the top 20 most occurring article types for pretraining ...")
+print("\nStep 5: Select the top 20 most occurring article types for pretraining ...")
 
 top_20 = df['articleType'].value_counts().nlargest(20)
 
@@ -85,7 +97,7 @@ print('pretrain-train, no. samples:', len(pretrain_train_df))
 print('pretrain-test, no. samples:', len(pretrain_test_df))
 
 
-print("\nStep 5: Select the rare article types for finetuning."
+print("\nStep 6: Select the rare article types for finetuning."
       "\nFilter out article types that are not present in both train and test, or in extreme low quantities in train,"
       "\n so that it prevents us from making a validation split for those categories ...")
 finetune_train_before_filter = pd.concat(
@@ -113,7 +125,7 @@ finetune_test_df = pd.concat([test_df.loc[test_df['articleType'] == articleType]
 
 #######################################################################################################################
 
-print("\nStep 6: Make stratified train and validation splits ...")
+print("\nStep 7: Make stratified train and validation splits ...")
 
 y = pretrain_train_df['articleType'].to_frame()
 pretrain_train, pretrain_val, _, _ = train_test_split(pretrain_train_df, y, stratify=y, test_size=0.2)
@@ -138,7 +150,7 @@ for train_cnt, atype in zip(train_counts, train_counts.index):
 
 #######################################################################################################################
 
-print("\nStep 7: saving splits ...")
+print("\nStep 8: saving splits ...")
 
 pretrain_train.to_pickle(osp.join(base_data_path, 'pretrain_train.df.pkl'))
 pretrain_val.to_pickle(osp.join(base_data_path, 'pretrain_val.df.pkl'))
