@@ -25,15 +25,6 @@ class AugmentImage(Augment):
         """
         pass
 
-    @abstractmethod
-    def augment_imgs(self, images):
-        """
-        This class needs to be implemented in all child classes
-        :param image: The image that needs to be augmented
-        :return: the augmented image
-        """
-        pass
-
     def __call__(self, sample):
         """
         The call function just takes out the image and passes it along
