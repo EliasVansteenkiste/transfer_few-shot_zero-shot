@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+from torchvision.transforms import functional as ttf
 
 
 class ToTensor(object):
@@ -66,13 +67,15 @@ class ToFloatTensor(object):
 
 
 class NormalizeSample(object):
-    def __init__(self, bounds):
-        self.bounds = bounds
 
-    def __call__(self, samples):
-        for s_key, s_value in samples.items():
-            bound = self.bounds.get(s_key)
-            if bound:
-                samples[s_key] = (s_value - bound[0]) / (bound[1] - bound[0])
+    def __init__(self, names, mean, std):
+        self.names = names
+        self.mean = mean
+        self.std = std
 
-        return samples
+    def __call__(self, sample):
+
+        for name in self.names:
+            sample[name] = ttf.normalize(sample[name], self.mean, self.std)
+
+        return sample

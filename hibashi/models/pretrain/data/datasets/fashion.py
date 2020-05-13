@@ -80,10 +80,13 @@ class Fashion(Dataset):
         if len(aug_names) > 0:
             transform_steps.append(AugmentSample(aug_names))
 
-        transform_steps.append(NormalizeSample({'image': (0, 255)}))
         transform_steps.append(ToTensor({'image': 'transpose_from_numpy',
                                          'cls_idx': 'tensor'}))
         transform_steps.append(ToFloatTensor(['image']))
+
+        transform_steps.append(NormalizeSample(('image',),
+                                               mean=[0.485, 0.456, 0.406],
+                                               std=[0.229, 0.224, 0.225]))
 
         self.transform = transforms.Compose(transform_steps)
 
