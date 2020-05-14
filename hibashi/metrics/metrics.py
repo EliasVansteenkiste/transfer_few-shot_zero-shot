@@ -1,7 +1,9 @@
 from abc import ABC
 
+import torch
 from ignite.exceptions import NotComputableError
 from ignite.metrics import Metric
+from torch.nn import functional as tnnf
 
 
 class LossFromDict(Metric):
@@ -43,6 +45,53 @@ class LossFromDict(Metric):
             return self._sum / self._num_steps
         else:
             return self._sum
+
+
+class Fbeta(Metric):
+    """
+    Calculate F1 metric over the whole validation set
+    """
+
+    def __init__(self, cls_idx: int, num_classes: int, beta: int = 1, epsilon=1e-8):
+        super(Fbeta, self).__init__()
+
+        self.beta = beta
+        self.num_classes = num_classes
+        self.cls_idx = cls_idx
+        self.epsilon = epsilon
+
+        self.tp = 0
+        self.fp = 0
+        self.fn = 0
+
+    def reset(self):
+        self.tp = 0
+        self.fp = 0
+        self.fn = 0
+
+    def update(self, output):
+        """
+        Calculates the elements of a confusion matrix according to the predicted and target values.
+        :param pred: network prediction
+        :param target: correspondent target
+        :return: confusion matrix array values
+        """
+        pred = output['out_pred_cls']
+        target = output['in_cls_targets']
+
+        target = tnnf.one_hot(target, num_classes=self.num_classes)
+        pred = tnnf.one_hot(pred.argmax(1), num_classes=self.num_classes)
+
+        target = target[:, self.cls_idx]
+        pred = pred[:, self.cls_idx]
+
+        self.tp += torch.sum(pred*target)
+        self.fp += torch.sum((1-pred)*target)
+        self.fn += torch.sum(pred*(1-target))
+
+    def compute(self):
+        return (1 + self.beta**2) * self.tp /\
+               ((1 + self.beta**2) * self.tp + self.beta**2 * self.fn + self.fp + self.epsilon)
 
 
 class ActivationsBasedMetric(ABC, Metric):
