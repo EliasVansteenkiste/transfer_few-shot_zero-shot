@@ -19,7 +19,7 @@ class Fashion(Dataset):
     def __init__(self,
                  pd_df_rel_path: str,
                  images_rel_path: str = 'trimmed_images',
-                 base_data_path: str = '/Users/elias/Downloads/fashion-dataset',
+                 base_data_path: str = '/content/gdrive/My Drive/datasets/fashion-dataset',
                  subsample=None, aug_names=(), **kwargs):
         """
         :param pd_df_rel_path: relative path to the labels file, a pickled pandas dataframe
@@ -80,10 +80,13 @@ class Fashion(Dataset):
         if len(aug_names) > 0:
             transform_steps.append(AugmentSample(aug_names))
 
-        transform_steps.append(NormalizeSample({'image': (0, 255)}))
         transform_steps.append(ToTensor({'image': 'transpose_from_numpy',
                                          'cls_idx': 'tensor'}))
         transform_steps.append(ToFloatTensor(['image']))
+
+        transform_steps.append(NormalizeSample(('image',),
+                                               mean=[0.485, 0.456, 0.406],
+                                               std=[0.229, 0.224, 0.225]))
 
         self.transform = transforms.Compose(transform_steps)
 
