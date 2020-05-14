@@ -19,7 +19,7 @@ def train_cfg():
     eval_interval = 1000  # Run evaluator every n iterations
     save_interval = 1
     save_n_last = 5
-    overwrite_id_with = 'test'
+    overwrite_id_with = '1-first_run_fixed_lr'
 
 
 @train_data.config
@@ -44,6 +44,7 @@ def val_data_cfg():
     name = None
     for name in names:
         val_data.add_config({name: {
+            'aug_names': ('PadToSquareResize',),
             'sampler': 'SequentialSampler',
             'batch_size': 32,
             'n_workers': 4,

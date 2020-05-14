@@ -19,7 +19,7 @@ class Fashion(Dataset):
     def __init__(self,
                  pd_df_rel_path: str,
                  images_rel_path: str = 'trimmed_images',
-                 base_data_path: str = '/Users/elias/Downloads/fashion-dataset',
+                 base_data_path: str = '/content/gdrive/My Drive/datasets/fashion-dataset',
                  subsample=None, aug_names=(), **kwargs):
         """
         :param pd_df_rel_path: relative path to the labels file, a pickled pandas dataframe
