@@ -1,7 +1,8 @@
 import numpy as np
 import torch
-from torch.nn import functional as tnnf
+from kornia.losses import focal_loss
 from sklearn.metrics import confusion_matrix
+from torch.nn import functional as tnnf
 
 from hibashi.losses.loss import Loss
 
@@ -22,6 +23,19 @@ class Accuracy(Loss):
         batch_size = target.size(0)
         values, indices = pred.max(1)
         return torch.sum(indices == target).float()/batch_size
+
+
+class FocalLoss(Loss):
+    """
+    Publication: https://arxiv.org/pdf/1708.02002.pdf
+    """
+    def __init__(self, gamma=2., alpha=.25):
+        super(FocalLoss, self).__init__()
+        self.gamma = gamma
+        self.alpha = alpha
+
+    def __call__(self, pred: torch.Tensor, target: torch.Tensor):
+        return focal_loss(pred, target, self.alpha, self.gamma, reduction='mean')
 
 
 class ConfusionMatrix(Loss):
@@ -48,4 +62,3 @@ class ConfusionMatrix(Loss):
 
         cm = confusion_matrix(targets, predictions, labels=self.labels)
         return cm
-
