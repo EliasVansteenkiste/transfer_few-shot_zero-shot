@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from hibashi.models.pretrain.losses import ConfusionMatrix
+from hibashi.models.pretrain.losses import ConfusionMatrix, FocalLoss
 
 
 class TestConfusionMatrix:
@@ -49,8 +49,24 @@ class TestConfusionMatrix:
         assert (result == expected).all()
 
 
+class TestFocalLoss:
+    """
+    Some basic sanity tests
+    """
+    def test_basic(self):
 
+        floss = FocalLoss()
 
+        pred = torch.Tensor([[0., 0., .01, .99],
+                             [0., 0., 0., 1.],
+                             [0., 0., 20., 80.],
+                             [0., 0., 100., 1.]])
+
+        close_target = torch.Tensor([3, 3, 3, 2]).long()
+        far_target = torch.Tensor([0, 1, 0, 1]).long()
+
+        assert floss(pred, close_target) < 0.1
+        assert floss(pred, far_target) > 2
 
 
 
