@@ -13,13 +13,13 @@ def train_cfg():
     connect_mongo_db = False
     connect_slack = False
     n_epochs = 120
-    metadata_path = '/content/gdrive/My Drive/tensorboard_logs'
+    metadata_path = '/content/gdrive/My Drive/tensorboard_logs'  # '/Users/elias/Downloads'
     log_interval = 100
     img_log_interval = 1000
     eval_interval = 1000  # Run evaluator every n iterations
     save_interval = 1
     save_n_last = 5
-    overwrite_id_with = '1-first_run_fixed_lr'
+    overwrite_id_with = '6-focal_loss-lr_schedule'
 
 
 @train_data.config
@@ -27,11 +27,12 @@ def train_data_cfg():
     name = 'FashionPretrainTrain'
 
     ds_params = Dataset.get_dataset_params(name)
-    ds_params['aug_names'] = ('PadToSquareResize',)
+    ds_params['base_data_path'] = '/home/fashion-dataset'  # '/Users/elias/Google Drive/datasets/fashion-dataset'
+    ds_params['aug_names'] = ('RandomResizedCropFlip',)
     ds_params['sampler'] = 'RandomSampler'
     train_data.add_config(ds_params)
     batch_size = 32
-    n_workers = 3
+    n_workers = 6
     shuffle = True
     drop_last = True
 
@@ -39,11 +40,14 @@ def train_data_cfg():
 @val_data.config
 def val_data_cfg():
     names = ['FashionPretrainVal', ]  # the names of the datasets
-
-    main_dataset = 'MNISTVal'  # the main validation dataset, will be used to track the best loss
+    external_metrics = ['F1Jeans', 'F1PerfumeAndBodyMist', 'F1FormalShoes', 'F1Socks', 'F1Backpacks', 'F1Belts',
+                        'F1Briefs', 'F1Sandals', 'F1FlipFlops', 'F1Wallets', 'F1Sunglasses', 'F1Heels', 'F1Handbags',
+                        'F1Tops', 'F1Kurtas', 'F1SportShoes', 'F1Watches', 'F1CasualShoes', 'F1Shirts', 'F1Tshirts']
+    main_dataset = 'FashionPretrainVal'  # the main validation dataset, will be used to track the best loss
     name = None
     for name in names:
         val_data.add_config({name: {
+            'base_data_path': '/home/fashion-dataset', #'/Users/elias/Google Drive/datasets/fashion-dataset',
             'aug_names': ('PadToSquareResize',),
             'sampler': 'SequentialSampler',
             'batch_size': 32,
