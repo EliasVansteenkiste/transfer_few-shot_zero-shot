@@ -11,7 +11,22 @@
 * Add pad to square and resizing operations to homogenize the images
 
 ### Wednesday 13th of May
-* add imagenet rgn norm
+* add imagenet rgb norm
+* add losses
+* add network definitions
+* add model definition
+* first pretraining 
+
+### Thursday 14th of May
+* add confusion matrix 
+* add f-scores metric
+
+### Friday 15th of May
+* add focal loss
+
+### Saturday 16th of May
+* add Flip Left Right Augmentation
+* make inference script for test
 
 
 
