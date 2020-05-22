@@ -39,7 +39,7 @@ class TestFashionDataIterators:
         temp_path = osp.join(self.path_temp_test_res, data_gen_cls.__name__)
         ensure_dir(temp_path)
 
-        data_iterator = data_gen_cls()
+        data_iterator = data_gen_cls(base_data_path='/Users/elias/Google Drive/datasets/fashion-dataset')
 
         counter = Counter()
 
@@ -59,6 +59,7 @@ class TestFashionDataIterators:
                 sample_image = sample['image'].data.numpy().transpose(1, 2, 0)
                 save_image(os.path.join(temp_path, f'{idx}.jpg'), sample_image)
 
+        print('Frequency of categories:')
         print(counter)
 
     def test_pretrain_train(self):
