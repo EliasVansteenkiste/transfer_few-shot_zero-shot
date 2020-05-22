@@ -3,8 +3,6 @@ from torch.utils.data import Dataset as TorchDataset
 
 from hibashi.framework.utils import get_subclass, get_parameter_of_cls
 
-AGE_STDEV = 2.
-
 
 class Dataset(TorchDataset):
     """

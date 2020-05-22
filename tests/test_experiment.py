@@ -12,19 +12,7 @@ class TestExperiment(TestCase):
     """
 
     def test_option_consistency_age(self):
-        self._test_option_consistency('age')
-
-    def test_option_consistency_attributes(self):
-        self._test_option_consistency('attributes')
-
-    def test_option_consistency_lrgan(self):
-        self._test_option_consistency('lrgan')
-
-    def test_option_consistency_prnet(self):
-        self._test_option_consistency('prnet')
-
-    def test_option_consistency_prnetattributes(self):
-        self._test_option_consistency('prnetattributes')
+        self._test_option_consistency('pretrain')
 
     @staticmethod
     def _test_option_consistency(experiment_name):
@@ -84,7 +72,7 @@ class TestExperiment(TestCase):
         We test if the options that are actually assigned to the run object are the same as passed via the with argument
         :return: None
         """
-        experiment_name = 'prnet'
+        experiment_name = 'pretrain'
 
         print(f'Testing the options for experiment{experiment_name}')
 
