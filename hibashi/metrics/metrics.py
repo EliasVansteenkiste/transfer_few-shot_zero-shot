@@ -46,6 +46,9 @@ class LossFromDict(Metric):
         else:
             return self._sum
 
+    def __str__(self):
+        return self.__class__.__name__+'-'+self._loss_name
+
 
 class Fbeta(Metric):
     """
@@ -92,6 +95,143 @@ class Fbeta(Metric):
     def compute(self):
         return (1 + self.beta**2) * self.tp /\
                ((1 + self.beta**2) * self.tp + self.beta**2 * self.fn + self.fp + self.epsilon)
+
+    def __str__(self):
+        return f'F{self.beta}_{self.cls_idx}th_class_of_{self.num_classes}_classes'
+
+
+class TopKAccuracy(Metric):
+    """
+    Calculate Top K Accuracy metric over the whole validation set
+    """
+
+    def __init__(self, num_classes: int, top_k: int = 1):
+        super(TopKAccuracy, self).__init__()
+
+        self.num_classes = num_classes
+        self.top_k = top_k
+
+        self.tp = 0
+        self.total = 0
+
+    def reset(self):
+        self.tp = 0
+        self.total = 0
+
+    def update(self, output):
+        """
+        Calculates the elements of a confusion matrix according to the predicted and target values.
+        :param pred: network prediction
+        :param target: correspondent target
+        :return: confusion matrix array values
+        """
+        pred = output['out_pred_cls']
+        target = output['in_cls_targets']
+
+        target = tnnf.one_hot(target, num_classes=self.num_classes)
+        pred = tnnf.one_hot(torch.topk(pred, self.top_k)[1], num_classes=self.num_classes)
+
+        target = target[:, self.cls_idx]
+        pred = pred[:, :, self.cls_idx]
+
+        self.tp += torch.sum(pred*target[:, None])
+        self.total += torch.sum(target)
+
+    def compute(self):
+        return 1. * self.tp / self.total
+
+    def __str__(self):
+        return f'Top{self.top_k}_{self.num_classes}_classes'
+
+
+class AverageAccuracy(Metric):
+    """
+    Calculate Average Accuracy with equal weight for every category in your test or validation set
+    """
+
+    def __init__(self, num_classes: int):
+        super(AverageAccuracy, self).__init__()
+
+        self.num_classes = num_classes
+        self.incidences = 0
+        self.true_positives = 0
+
+    def reset(self):
+        self.incidences = 0
+        self.true_positives = 0
+
+    def update(self, output):
+        """
+        Calculates the elements of a confusion matrix according to the predicted and target values.
+        :param pred: network prediction
+        :param target: correspondent target
+        :return: confusion matrix array values
+        """
+        pred = output['out_pred_cls']
+        cls_target = output['in_cls_targets']
+
+        target = tnnf.one_hot(cls_target, num_classes=self.num_classes)
+        pred = tnnf.one_hot(pred.argmax(1), num_classes=self.num_classes)
+
+        self.incidences += torch.sum(target, dim=0)
+        self.true_positives += torch.sum(pred * target, dim=0)
+
+    def compute(self):
+        accuracies = []
+        incidences = self.incidences.float()
+        true_positives = self.true_positives.float()
+        for incidence, true_positives in zip(incidences, true_positives):
+            if incidence > 0:
+                accuracies.append(true_positives/incidence)
+        return torch.mean(torch.stack(accuracies))
+
+    def __str__(self):
+        return self.__class__.__name__ + f'-{self.num_classes}_classes'
+
+
+class AverageTop1ErrorRate(Metric):
+    """
+    Calculate Average Top 1 Error Rate, every category has an equal weight
+    """
+
+    def __init__(self, num_classes):
+        super(AverageTop1ErrorRate, self).__init__()
+
+        self.num_classes = num_classes
+        self.incidences = 0
+        self.true_positives = 0
+
+    def reset(self):
+        self.incidences = 0
+        self.true_positives = 0
+
+    def update(self, output):
+        """
+        Calculates the elements of a confusion matrix according to the predicted and target values.
+        :param pred: network prediction
+        :param target: correspondent target
+        :return: confusion matrix array values
+        """
+        pred = output['out_pred_cls']
+        cls_target = output['in_cls_targets']
+
+        target = tnnf.one_hot(cls_target, num_classes=self.num_classes)
+        pred = tnnf.one_hot(pred.argmax(1), num_classes=self.num_classes)
+
+        self.incidences += torch.sum(target, dim=0)
+        self.true_positives += torch.sum(pred * target, dim=0)
+
+    def compute(self):
+        error_rates = []
+        incidences = self.incidences.float()
+        true_positives = self.true_positives.float()
+        for incidence, true_positives in zip(incidences, true_positives):
+            if incidence > 0:
+                error_rates.append(1-true_positives/incidence)
+        return torch.mean(torch.stack(error_rates))
+
+    def __str__(self):
+        return self.__class__.__name__ + f'-{self.num_classes}_classes'
 
 
 class ActivationsBasedMetric(ABC, Metric):
