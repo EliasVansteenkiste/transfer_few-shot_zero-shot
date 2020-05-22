@@ -1,10 +1,7 @@
 import torch
-import torch.nn as nn
 from ignite.contrib.handlers import PiecewiseLinear
 from torch.optim import Adam
 
-from hibashi.framework.factory import factory
-from hibashi.losses.loss import Loss
 from hibashi.models import Model
 from hibashi.models.pretrain.losses import CE, Accuracy, ConfusionMatrix, FocalLoss
 from hibashi.models.pretrain.networks.classification import ImageClassifier
@@ -35,6 +32,7 @@ class PreTrain(Model):
         self.loss_accuracy = None
         self.loss_focal = None
         self.loss_error_rate = None
+        self.loss_cls_weighted = None
 
         self.non_scalar_metric_cm = None
 
@@ -59,6 +57,30 @@ class PreTrain(Model):
                                        1: "Shirts",
                                        0: "Tshirts"}
 
+        n_samples_in_train = {'Tshirts': 2199,
+                              'Watches': 1985,
+                              'Casual Shoes': 1241,
+                              'Kurtas': 912,
+                              'Shirts': 902,
+                              'Tops': 847,
+                              'Sunglasses': 833,
+                              'Handbags': 805,
+                              'Sports Shoes': 705,
+                              'Heels': 620,
+                              'Briefs': 529,
+                              'Wallets': 480,
+                              'Flip Flops': 406,
+                              'Socks': 404,
+                              'Belts': 394,
+                              'Sandals': 382,
+                              'Formal Shoes': 287,
+                              'Jeans': 270,
+                              'Backpacks': 198,
+                              "Perfume and Body Mist": 1}
+
+        ce_weights = [1000 / n_samples_in_train[self.cls_idx_2_article_type[i]] for i in range(20)]
+        self.ce_weights = torch.Tensor(ce_weights).to(self.device, non_blocking=True)
+
         self.criterion_cls = CE()
         self.criterion_acc = Accuracy()
         self.criterion_focal = FocalLoss()
@@ -66,7 +88,6 @@ class PreTrain(Model):
 
         if self.is_train:
             self.optimizer = Adam(self.net_classifier.parameters(), lr=0.0002, betas=(0., 0.9), weight_decay=0, eps=1e-8)
-
             self.schedulers = self.assign_schedulers()
 
     def assign_schedulers(self):
@@ -77,12 +98,12 @@ class PreTrain(Model):
         schedulers = []
 
         milestones = ((0, 2e-4),
-                      (9000, 2e-4),
-                      (10000, 1e-4),
-                      (19000, 1e-4),
-                      (20000, 5e-5),
-                      (29000, 5e-5),
-                      (30000, 2e-5))
+                      (8499, 2e-4),
+                      (8500, 1e-4),
+                      (16999, 1e-4),
+                      (17000, 5e-5),
+                      (25999, 5e-5),
+                      (26000, 2.5e-5))
 
         multi_lr = PiecewiseLinear(self.optimizer, "lr", milestones_values=milestones)
         schedulers.append(multi_lr)
@@ -90,7 +111,7 @@ class PreTrain(Model):
 
     @property
     def name_main_metric(self):
-        return "loss_error_rate"
+        return "AverageTop1ErrorRatePretrain"
 
     def main_metric(self, metrics: dict):
         """
@@ -128,6 +149,7 @@ class PreTrain(Model):
     def calculate_metrics(self):
         """Calculate metrics which are used during evaluation. This should also include all the losses"""
         self.loss_cls = self.criterion_cls(self.out_pred_cls, self.in_cls_targets)
+        self.loss_cls_weighted = self.criterion_cls(self.out_pred_cls, self.in_cls_targets)
         self.loss_focal = self.criterion_focal(self.out_pred_cls, self.in_cls_targets)
         self.loss_accuracy = self.criterion_acc(self.out_pred_cls, self.in_cls_targets)
         self.loss_error_rate = 1 - self.loss_accuracy
@@ -136,7 +158,7 @@ class PreTrain(Model):
     def backward(self):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
         self.calculate_metrics()
-        self.loss_focal.backward()
+        self.loss_cls.backward()
 
     def optimize_parameters(self):
         """Update network weights; it will be called in every training iteration."""
