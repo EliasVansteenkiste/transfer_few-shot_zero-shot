@@ -15,7 +15,7 @@ def plot_confusion_matrix_validation(cm: np.ndarray, labels: list):
     """
     np.set_printoptions(precision=2)
 
-    fig = plt.figure(figsize=(4, 4), dpi=320, facecolor='w', edgecolor='k')
+    fig = plt.figure(figsize=(5, 5), dpi=320, facecolor='w', edgecolor='k')
     ax = fig.add_subplot(1, 1, 1)
     im = ax.imshow(cm, cmap='Oranges')
 
