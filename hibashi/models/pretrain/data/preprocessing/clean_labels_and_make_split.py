@@ -114,8 +114,11 @@ for article_type in all_article_types:
     if article_type not in top_20.index.values:
         n_in_train = len(finetune_train_before_filter.loc[finetune_train_before_filter['articleType'] == article_type])
         n_in_test = len(finetune_test_before_filter.loc[finetune_test_before_filter['articleType'] == article_type])
-        if n_in_train < 5 or n_in_test < 5:
+        # removing categories that have an extremely low number of items
+        if n_in_train < 3 or n_in_test < 2:
             low_occurence_types.append(article_type)
+print('Removing low occurrence types:')
+print(low_occurence_types)
 
 finetune_train_df = pd.concat([train_df.loc[train_df['articleType'] == articleType] for articleType in all_article_types
                                if articleType not in top_20.index.values and articleType not in low_occurence_types])
@@ -147,6 +150,19 @@ for train_cnt, atype in zip(train_counts, train_counts.index):
     val_cnt = val_counts[atype]
     # a bit more lenient here since we have categories with very few samples
     assert 0.15 < val_cnt/(train_cnt+val_cnt) < 0.45
+
+# sanity check if all categories are present in each finetune set
+assert set(finetune_train['articleType'].unique()) == \
+       set(finetune_val['articleType'].unique()) == \
+       set(finetune_test_df['articleType'].unique())
+
+# printing out categories and their class idx
+prin('Categories and their class idx for pretrain_train, to be copied to model file:')
+for idx, article_type in enumerate(sorted(pretrain_train['articleType'].unique())):
+    print(f'"{article_type}": {idx},')
+prin('Categories and their class idx for finetune_train_df, to be copied to model file:')
+for idx, article_type in enumerate(sorted(finetune_train_df['articleType'].unique())):
+    print(f'"{article_type}": {idx},')
 
 #######################################################################################################################
 

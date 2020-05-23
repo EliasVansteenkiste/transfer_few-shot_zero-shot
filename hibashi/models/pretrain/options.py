@@ -16,10 +16,10 @@ def train_cfg():
     metadata_path = '/home/ubuntu/tensorboard_logs'  # '/Users/elias/Downloads'
     log_interval = 100
     img_log_interval = 1000
-    eval_interval = 250  # Run evaluator every n iterations
+    eval_interval = 125  # Run evaluator every n iterations
     save_interval = 1
     save_n_last = 5
-    overwrite_id_with = '11-lr_schedule-CE-batch_size_128-no_aug'
+    overwrite_id_with = '14-lr_schedule-CE-batch_size_128-no_aug'
 
 
 @train_data.config
@@ -32,7 +32,7 @@ def train_data_cfg():
     ds_params['sampler'] = 'RandomSampler'
     train_data.add_config(ds_params)
     batch_size = 128
-    n_workers = 40
+    n_workers = 64
     shuffle = True
     drop_last = True
 
@@ -40,7 +40,8 @@ def train_data_cfg():
 @val_data.config
 def val_data_cfg():
     names = ['FashionPretrainVal', ]  # the names of the datasets
-    external_metrics = ['AverageTop1ErrorRatePretrain', 'AverageTop1ErrorRatePretrain', 'F1Jeans', 'F1PerfumeAndBodyMist', 'F1FormalShoes', 'F1Socks', 'F1Backpacks', 'F1Belts',
+    external_metrics = ['AverageTop1ErrorRatePretrain', 'AverageTop1ErrorRatePretrain',
+                        'F1Jeans', 'F1PerfumeAndBodyMist', 'F1FormalShoes', 'F1Socks', 'F1Backpacks', 'F1Belts',
                         'F1Briefs', 'F1Sandals', 'F1FlipFlops', 'F1Wallets', 'F1Sunglasses', 'F1Heels', 'F1Handbags',
                         'F1Tops', 'F1Kurtas', 'F1SportShoes', 'F1Watches', 'F1CasualShoes', 'F1Shirts', 'F1Tshirts']
     main_dataset = 'FashionPretrainVal'  # the main validation dataset, will be used to track the best loss
