@@ -279,7 +279,5 @@ class Model(ABC):
 
 
 for (module_loader, name, ispkg) in pkgutil.iter_modules([os.path.split(__file__)[0]]):
-    print('hibashi.models.' + name + '.losses', __package__)
-    print('hibashi.models.' + name + '.' + name, __package__)
     importlib.import_module('hibashi.models.' + name + '.losses', __package__)
     importlib.import_module('hibashi.models.' + name + '.' + name, __package__)
