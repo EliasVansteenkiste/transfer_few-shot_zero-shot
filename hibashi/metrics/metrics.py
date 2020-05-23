@@ -130,15 +130,14 @@ class TopKAccuracy(Metric):
 
         target = tnnf.one_hot(target, num_classes=self.num_classes)
         pred = tnnf.one_hot(torch.topk(pred, self.top_k)[1], num_classes=self.num_classes)
-
-        target = target[:, self.cls_idx]
-        pred = pred[:, :, self.cls_idx]
-
-        self.tp += torch.sum(pred*target[:, None])
-        self.total += torch.sum(target)
+        self.tp += torch.sum(pred*target[:, None, :], dim=(0, 1))
+        self.total += torch.sum(target, dim=0)
 
     def compute(self):
-        return 1. * self.tp / self.total
+        return (self.tp.float() / self.total.float()).mean()
+
+    def compute_per_idx(self, cls_idx):
+        return 1. * self.tp[cls_idx].float() / self.total[cls_idx].float()
 
     def __str__(self):
         return f'Top{self.top_k}_{self.num_classes}_classes'
