@@ -16,14 +16,13 @@ class AugmentImage(Augment):
         else:
             self.key_target = key_target
 
-    @abstractmethod
     def augment_img(self, image):
         """
-        This class needs to be implemented in all child classes
+        Apply augmentations
         :param image: The image that needs to be augmented
         :return: the augmented image
         """
-        pass
+        return self.sequence.augment_image(image)
 
     def __call__(self, sample):
         """

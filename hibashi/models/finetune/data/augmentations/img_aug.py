@@ -22,14 +22,6 @@ class PadToSquareResize(AugmentImage):
             iaa.Resize({"height": 128, "width": 128})
         ])
 
-    def augment_img(self, image):
-        """
-        Apply augmentations
-        :param image: The image that needs to be augmented
-        :return: the augmented image
-        """
-        return self.sequence.augment_image(image)
-
 
 class FlipLR(AugmentImage):
     def __init__(self, p=.5, key_source='image', key_target=None):
@@ -37,13 +29,26 @@ class FlipLR(AugmentImage):
 
         self.sequence = iaa.Fliplr(p=p)
 
-    def augment_img(self, image):
-        """
-        Apply augmentations
-        :param image: The image that needs to be augmented
-        :return: the augmented image
-        """
-        return self.sequence.augment_image(image)
+
+class Affine(AugmentImage):
+    """
+    Affine image augmentation, includes scaling, translation, rotation, shear
+    """
+    def __init__(self, key_source='image', key_target=None):
+        super(Affine, self).__init__(key_source=key_source, key_target=key_target)
+
+        def sometimes(aug):
+            return iaa.Sometimes(0.5, aug)
+
+        self.sequence = sometimes(iaa.Affine(
+            scale={"x": (0.8, 1.4), "y": (0.8, 1.4)},  # scale images to 80-140% of their size, individually per axis
+            translate_percent={"x": (-0.38, 0.38), "y": (-0.38, 0.38)},  # translate by -38 to +38 percent (per axis)
+            rotate=(-45, 45),  # rotate by -45 to +45 degrees
+            shear=(-5, 5),  # shear
+            order=[0, 1],  # use nearest neighbour or bilinear interpolation (fast)
+            cval=(0, 255),  # if mode is constant, use a cval between 0 and 255
+            mode=imgaug.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
+        ))
 
 
 class RandomResizedCropFlip(AugmentImage):
@@ -61,14 +66,6 @@ class RandomResizedCropFlip(AugmentImage):
             iaa.Fliplr(p=.5)
         ])
 
-    def augment_img(self, image):
-        """
-        Apply augmentations
-        :param image: The image that needs to be augmented
-        :return: the augmented image
-        """
-        return self.sequence.augment_image(image)
-
 
 class RandomColorJitter(AugmentImage):
     """
@@ -85,11 +82,3 @@ class RandomColorJitter(AugmentImage):
             ])),
             iaa.Sometimes(0.2, iaa.Grayscale())
         ])
-
-    def augment_img(self, image):
-        """
-        Apply augmentations
-        :param image: The image that needs to be augmented
-        :return: the augmented image
-        """
-        return self.sequence.augment_image(image)
