@@ -1,10 +1,12 @@
+from pprint import pprint
+
 import torch
 from ignite.contrib.handlers import PiecewiseLinear
 from torch.optim import Adam
 
 from hibashi.models import Model
 from hibashi.models.finetune.losses import CE, Accuracy, ConfusionMatrix, FocalLoss
-from hibashi.models.finetune.networks.classification import ImageClassifier
+from hibashi.models.finetune.networks.classification import ImageClassifier, ImageClassifierV2
 from hibashi.models.finetune.utils import plot_confusion_matrix_validation
 
 
@@ -21,7 +23,7 @@ class Finetune(Model):
 
         self.is_train = is_train
 
-        self.net_classifier = self.define_net()
+        self.net_classifier = self.define_net(is_train)
 
         self.in_imgs = None
         self.in_real_paths = None
@@ -111,8 +113,6 @@ class Finetune(Model):
                               'Travel Accessory': 4, 'Footballs': 4, 'Camisoles': 4, 'Waist Pouch': 3, 'Headband': 3,
                               'Shoe Accessories': 3, 'Rucksacks': 2, 'Wristbands': 2}
 
-        print(len(n_samples_in_train))
-
         ce_weights = [1000 / n_samples_in_train[self.cls_idx_2_article_type[i]] for i in range(57)]
         self.ce_weights = torch.Tensor(ce_weights).to(self.device, non_blocking=True)
 
@@ -122,6 +122,14 @@ class Finetune(Model):
         self.criterion_cm = ConfusionMatrix(self.cls_idx_2_article_type)
 
         if self.is_train:
+            # param_lr_groups = [
+            #     {'params': self.net_classifier.fc.parameters(), 'lr': 1e-2},
+            #     {'params': self.net_classifier.encoder.layer4.parameters(), 'lr': 1e-4},
+            #     {'params': self.net_classifier.encoder.layer3.parameters(), 'lr': 1e-4},
+            #     {'params': self.net_classifier.encoder.layer2.parameters(), 'lr': 1e-6},
+            #     {'params': self.net_classifier.encoder.layer1.parameters(), 'lr': 1e-6}
+            # ]
+
             self.optimizer = Adam(self.net_classifier.parameters(), lr=0.0002, betas=(0., 0.9), weight_decay=0,
                                   eps=1e-8)
             self.schedulers = self.assign_schedulers()
@@ -134,12 +142,12 @@ class Finetune(Model):
         schedulers = []
 
         milestones = ((0, 2e-4),
-                      (8499, 2e-4),
-                      (8500, 1e-4),
-                      (16999, 1e-4),
-                      (17000, 5e-5),
-                      (25999, 5e-5),
-                      (26000, 2.5e-5))
+                      (499, 2e-4),
+                      (500, 1e-4),
+                      (999, 1e-4),
+                      (1000, 5e-5),
+                      (1499, 5e-5),
+                      (1500, 2.5e-5))
 
         multi_lr = PiecewiseLinear(self.optimizer, "lr", milestones_values=milestones)
         schedulers.append(multi_lr)
@@ -157,8 +165,14 @@ class Finetune(Model):
         """
         return metrics[self.name_main_metric]
 
-    def define_net(self):
-        net = ImageClassifier()
+    def define_net(self,  is_train: bool):
+        net = ImageClassifier(num_classes=57, pretrained=True)
+        if is_train:
+            # net.load_weights_into_encoder(path='/home/ubuntu/tensorboard_logs/pretrain/'
+            #                                    '11-lr_schedule-CE-batch_size_128-no_aug/checkpoints/'
+            #                                    'best_net_classifier_59_AverageTop1ErrorRatePretrain=0.03866385.pth',
+            #                               device=self.device)
+            net.init_linear_classifier()
         if self.device.type == 'cuda':
             net.to(self.device)
         return net
@@ -194,7 +208,7 @@ class Finetune(Model):
     def backward(self):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
         self.calculate_metrics()
-        self.loss_cls.backward()
+        self.loss_cls_weighted.backward()
 
     def optimize_parameters(self):
         """Update network weights; it will be called in every training iteration."""
@@ -212,7 +226,7 @@ class Finetune(Model):
         out_dict = {}
         for name, metric in state.metrics.items():
             if name == 'non_scalar_metric_cm':
-                fig = plot_confusion_matrix_validation(metric, self.criterion_cm.labels)
+                fig = plot_confusion_matrix_validation(metric, self.criterion_cm.labels, figsize=(8, 8))
                 out_dict['cm'] = fig
             else:
                 continue
