@@ -1,8 +1,14 @@
 ### Results for the best pretrained model
-* 11-lr_schedule-CE-batch_size_128-no_aug/checkpoints/best_net_classifier_59_AverageTop1ErrorRatePretrain=0.03866385.pth  
-non balanced accuracy: 0.8820762634277344  
+Best experiment:  
+11-lr_schedule-CE-batch_size_128-no_aug/checkpoints/best_net_classifier_59_AverageTop1ErrorRatePretrain=0.03866385.pth  
+
+Non balanced accuracy: 0.8820762634277344  
+
 Average top 1 accuracy: 0.880083441734314  
-Average top 5 accuracy: 0.9432379603385925    
+Average top 5 accuracy: 0.9432379603385925  
+
+#### Scores for the differen article types:        
+
 Average top 1 accuracy for Tshirts: 0.9440  
 Average top 5 accuracy for Tshirts: 0.9972  
 Average top 1 accuracy for Shirts: 0.9861  
@@ -39,8 +45,8 @@ Average top 1 accuracy for Socks: 0.9558
 Average top 5 accuracy for Socks: 0.9834  
 Average top 1 accuracy for Formal Shoes: 0.9245  
 Average top 5 accuracy for Formal Shoes: 0.9856  
-Average top 1 accuracy for Perfume and Body Mist: 0.0000  
-Average top 5 accuracy for Perfume and Body Mist: 0.0000  
+Average top 1 accuracy for Perfume and Body Mist: 0.0000  (No training data for this category)    
+Average top 5 accuracy for Perfume and Body Mist: 0.0000  (No training data for this category)  
 Average top 1 accuracy for Jeans: 0.9889  
 Average top 5 accuracy for Jeans: 0.9889
 
