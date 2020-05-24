@@ -28,6 +28,18 @@
 * add Flip Left Right Augmentation
 * make inference script for test
 
+### Sunday 17th of May
+* Running pretrain experiments on Google Colab
+* Experiences: works well for a limited set of the data but it is pretty slow for the full dataset. 
+Data loading is slow since it only has two cores for one Colab instance, preventing from using me too much data loader instances.
+This is problematic since larger batch sizes seem to work better.
+Tried to speed up the data loading, but it is a bit out of the scope of this challenge.
+My next thing I would recommend is to use albumentations instead of imgaug since it has a better performance.
+Nevertheless 2 processor (virtual) cores combined with a V100 is a bit unbalanced.
+* Sent a mail to ask for a VM
+
+### Wednesday 18th of May 
+
 
 
 
