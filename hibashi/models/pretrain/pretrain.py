@@ -122,7 +122,7 @@ class PreTrain(Model):
         return metrics[self.name_main_metric]
 
     def define_net(self):
-        net = ImageClassifier()
+        net = ImageClassifier(pretrained=False)
         if self.device.type == 'cuda':
             net.to(self.device)
         return net
