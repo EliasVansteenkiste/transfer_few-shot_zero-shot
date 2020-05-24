@@ -6,16 +6,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_confusion_matrix_validation(cm: np.ndarray, labels: list):
+def plot_confusion_matrix_validation(cm: np.ndarray, labels: list, figsize=(4, 4)):
     """
     Generates the figures for aggregated results for validation.
     :param cm: aggregates confusion matrix values
     :param labels: of class labels
+    :param figsize: size of matplotlib figure, needs to be large enough to accommodate all categories
     :return: (matplotlibt object) figure
     """
     np.set_printoptions(precision=2)
 
-    fig = plt.figure(figsize=(4, 4), dpi=320, facecolor='w', edgecolor='k')
+    fig = plt.figure(figsize=figsize, dpi=320, facecolor='w', edgecolor='k')
     ax = fig.add_subplot(1, 1, 1)
     im = ax.imshow(cm, cmap='Oranges')
 
