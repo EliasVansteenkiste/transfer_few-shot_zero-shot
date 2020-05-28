@@ -37,10 +37,3 @@ Tried to speed up the data loading, but it is a bit out of the scope of this cha
 My next thing I would recommend is to use albumentations instead of imgaug since it has a better performance.
 Nevertheless 2 processor (virtual) cores combined with a V100 is a bit unbalanced.
 * Sent a mail to ask for a VM
-
-### Wednesday 18th of May 
-
-
-
-
-
