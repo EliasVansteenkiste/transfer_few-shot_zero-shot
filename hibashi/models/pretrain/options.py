@@ -19,7 +19,7 @@ def train_cfg():
     eval_interval = 125  # Run evaluator every n iterations
     save_interval = 1
     save_n_last = 5
-    overwrite_id_with = '14-lr_schedule-CE-batch_size_128-no_aug'
+    overwrite_id_with = '15-lr_schedule-CE-batch_size_128-no_aug-no_pretraining'
 
 
 @train_data.config

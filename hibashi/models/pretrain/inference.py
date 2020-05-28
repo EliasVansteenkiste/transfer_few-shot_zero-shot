@@ -18,14 +18,14 @@ from hibashi.models.pretrain.utils import plot_confusion_matrix_validation
 from hibashi.utils.io import ensure_dir
 
 # paths to set
-base_log_path = '/Users/elias/sideprojects/tensorboard_logs/pretrain/'
-save_path = '/Users/elias/Google Drive/imc/test_results'
+base_log_path = '/content/gdrive/My Drive/imc/tensorboard_logs/pretrain'
+save_path = '/content/gdrive/My Drive/imc/test_results/pretrain'
 ensure_dir(save_path)
 
-testset = FashionPretrainTest(base_data_path='/Users/elias/Google Drive/datasets/fashion-dataset',
+testset = FashionPretrainTest(base_data_path='/home/fashion-dataset',
                               aug_names=('PadToSquareResize',))
 
-model = PreTrain(gpu_ids=-1, is_train=False)
+model = PreTrain(gpu_ids=[0], is_train=False)
 
 metrics = {'non balanced accuracy': LossFromDict(loss_name='loss_accuracy'),
            'Average top 1 accuracy': TopKAccuracy(num_classes=20, top_k=1),
@@ -36,7 +36,21 @@ non_scalar_metrics = {'Confusion Matrix': LossFromDict(loss_name='non_scalar_met
 
 
 for path_rel in [
+    '01-fixed_lr-CE/checkpoints/best_net_classifier_26_loss_error_rate=0.06415929.pth',
+    '02-fixed_lr-CE-batch_size_64/checkpoints/best_net_classifier_16_loss_error_rate=0.06743421.pth',
+    '03-fixed_lr-CE-batch_size_128/checkpoints/best_net_classifier_43_loss_error_rate=0.06498894.pth',
+    '04-lr_schedule-CE-batch_size_64/checkpoints/best_net_classifier_53_loss_error_rate=0.05088495.pth',
+    '05-fixed_lr_schedule-CE-batch_size_256/checkpoints/best_net_classifier_10_loss_error_rate=0.06554203.pth',
+    '07-lr_schedule-CE-batch_size_128/checkpoints/best_net_classifier_1_AverageTop1ErrorRatePretrain=0.05263158.pth',
+    '08-5k_lr_schedule-CE-batch_size_256/checkpoints/best_net_classifier_1_AverageTop1ErrorRatePretrain=0.05263158.pth',
+    '09-lr_schedule-weighted_CE-batch_size_128/checkpoints/best_net_classifier_1_AverageTop1ErrorRatePretrain=0.05263158.pth',
+    '10-lr_schedule-CE-batch_size_128-fliplr_only/checkpoints/best_net_classifier_1_AverageTop1ErrorRatePretrain=0.05263158.pth',
+    '11-lr_schedule-CE-batch_size_128-no_aug/checkpoints/best_net_classifier_38_AverageTop1ErrorRatePretrain=0.0423285.pth',
     '11-lr_schedule-CE-batch_size_128-no_aug/checkpoints/best_net_classifier_59_AverageTop1ErrorRatePretrain=0.03866385.pth',
+    '12-lr_schedule-CE-batch_size_128-RandomColorJitter/checkpoints/best_net_classifier_26_AverageTop1ErrorRatePretrain=0.04507069.pth',
+    '12-lr_schedule-CE-batch_size_128-RandomColorJitter/checkpoints/best_net_classifier_67_AverageTop1ErrorRatePretrain=0.04180649.pth',
+    '13-lr_schedule-CE-batch_size_256-no_aug/checkpoints/best_net_classifier_62_AverageTop1ErrorRatePretrain=0.04636856.pth',
+    '14-lr_schedule-CE-batch_size_128-no_aug-init_lin_layer/checkpoints/best_net_classifier_94_AverageTop1ErrorRatePretrain=0.04102252.pth',
 ]:
 
     print(path_rel)

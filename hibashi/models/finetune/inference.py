@@ -61,7 +61,8 @@ for path_rel in [
     # '12-ce_weighted-lr_schedule-FlipLR_Affine/checkpoints/best_net_classifier_12_AverageTop1ErrorRateFinetune=0.2450421.pth',
     # '13-ce_weighted-lr_schedule-FlipLR_Affine-2layerfc/checkpoints/best_net_classifier_18_AverageTop1ErrorRateFinetune=0.2244431.pth',
     # "14-ce_weighted-lr_schedule-RandomColorJitter_Affine_FlipLR/checkpoints/best_net_classifier_23_AverageTop1ErrorRateFinetune=0.209832.pth",
-    # "15-ce_weighted-lr_schedule-RandomColorJitter_Affine_FlipLR-imagenet_pretrained/checkpoints/best_net_classifier_12_AverageTop1ErrorRateFinetune=0.1985388.pth"
+    # "15-ce_weighted-lr_schedule-RandomColorJitter_Affine_FlipLR-imagenet_pretrained/checkpoints/best_net_classifier_12_AverageTop1ErrorRateFinetune=0.1985388.pth",
+    '16-ce_weighted-lr_schedule_Affine_FlipLR-imagenet_pretrained/checkpoints/best_net_classifier_21_AverageTop1ErrorRateFinetune=0.206297.pth',
 ]:
 
     print(path_rel)

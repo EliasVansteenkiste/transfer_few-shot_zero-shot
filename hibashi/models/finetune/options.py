@@ -19,7 +19,7 @@ def train_cfg():
     eval_interval = 125  # Run evaluator every n iterations
     save_interval = 1
     save_n_last = 5
-    overwrite_id_with = '16-ce_weighted-lr_schedule_Affine_FlipLR-imagenet_pretrained'
+    overwrite_id_with = '17-ce_weighted-lr_schedule_Affine_RandomResizedCropFlip-imagenet_pretrained'
 
 
 @train_data.config
@@ -28,7 +28,7 @@ def train_data_cfg():
 
     ds_params = Dataset.get_dataset_params(name)
     ds_params['base_data_path'] = '/mnt/ramdisk/fashion-dataset' # '/Users/elias/Google Drive/datasets/fashion-dataset' # '/mnt/ramdisk/fashion-dataset'
-    ds_params['aug_names'] = ('PadToSquareResize', 'Affine', 'FlipLR')
+    ds_params['aug_names'] = ('Affine', 'RandomResizedCropFlip')
     ds_params['sampler'] = 'RandomSampler'
     train_data.add_config(ds_params)
     batch_size = 128
