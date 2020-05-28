@@ -157,7 +157,7 @@ assert set(finetune_train['articleType'].unique()) == \
        set(finetune_test_df['articleType'].unique())
 
 # printing out categories and their class idx
-prin('Categories and their class idx for pretrain_train, to be copied to model file:')
+print('Categories and their class idx for pretrain_train, to be copied to model file:')
 for idx, article_type in enumerate(sorted(pretrain_train['articleType'].unique())):
     print(f'"{article_type}": {idx},')
 prin('Categories and their class idx for finetune_train_df, to be copied to model file:')

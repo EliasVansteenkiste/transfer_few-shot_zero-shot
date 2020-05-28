@@ -26,8 +26,6 @@ def trim_borders(path_img_source: str, path_img_target: str, threshold: float = 
     :param threshold: threshold value to indicate interesting content
     :return:
     """
-
-
     # We use .project to sum the rows and columns of a 0/255 mask image, the first
     # non-zero row or column is the object edge. We make the mask image with an
     # amount-different-from-background image plus a threshold.
